@@ -83,8 +83,7 @@ const closeNav = () => {
 
 // openSearchBOX
 const openSearchBox = () => {
-  let searchWrap = document.querySelector(".search-wrap");
-  searchWrap.classList.toggle("active");
+  document.querySelector(".search-wrap").classList.toggle("active");
 };
 
 
