@@ -7,30 +7,41 @@ sideNav.forEach(menu => menu.addEventListener("click", (event) => getNewsByCateg
 let url = new URL(`https://noona-times-be-5ca9402f90d9.herokuapp.com/top-headlines?country=us&apiKey=${API_KEY}`);
 
 const getNews = async () => {
-  const response = await fetch(url);
-  const data = await response.json();
-  newsList = data.articles;
-  render();
+  try{
+    const response = await fetch(url);
+
+    const data = await response.json();
+    if(response.status === 200){
+      if(data.articles.length === 0){
+        throw new Error("No result for this search");
+      }
+      newsList = data.articles;
+      render();
+    }else{
+      throw new Error(data.message);
+    }
+  }catch(error){
+    errorRender(error.message);
+  }
 }
 
 // 최신 뉴스 가져오기
 const getLatestNews = async () => {
   url = new URL(`https://noona-times-be-5ca9402f90d9.herokuapp.com/top-headlines?country=us&apiKey=${API_KEY}`);
-  getNews();
+  await getNews();
 };
 
 // 카테고리별 뉴스 가져오기
 const getNewsByCategory = async (event) => {
   const category = event.target.textContent.toLowerCase();
   url = new URL(`https://noona-times-be-5ca9402f90d9.herokuapp.com/top-headlines?country=us&category=${category}&apiKey=${API_KEY}`);
-  getNews();
-};
-
+  await getNews();
+}
 // 키워드 검색 뉴스 가져오기
 const getNewsByKeyword = async () => {
   const keyword = document.getElementById("search-input").value;
   url = new URL(`https://noona-times-be-5ca9402f90d9.herokuapp.com/top-headlines?country=us&q=${keyword}&apiKey=${API_KEY}`);
-  getNews();
+  await getNews();
 };
 
 // 뉴스 데이터 렌더링
@@ -54,8 +65,17 @@ const render = () => {
             </div>`;
   }).join('');
   
-  document.getElementById('news-board').innerHTML = newsHTML;
+  document.getElementById("news-board").innerHTML = newsHTML;
 };
+
+// 에러 메세지
+const errorRender = (errorMessage) => {
+  const errorHTML = `<div class="alert alert-danger" role="alert">
+    ${errorMessage};
+  </div>`;
+
+  document.getElementById("news-board").innerHTML = errorHTML;
+}
 
 // 텍스트 길이 제한 함수
 const textLimit = (text, limit) => {
@@ -65,10 +85,11 @@ const textLimit = (text, limit) => {
 
 getLatestNews();
 
-// search-input에서 Enter 키 이벤트 추가
+// search-input Enter 키 이벤트 추가
 document.getElementById("search-input").addEventListener("keydown", (event) => {
   if (event.key === "Enter") {
     getNewsByKeyword();
+    event.target.value = "";
   }
 });
 
