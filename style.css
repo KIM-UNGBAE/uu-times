@@ -15,6 +15,7 @@
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
+    line-height: 35px;
     margin-top: 80px;
     border-top: 1px solid #ebebeb;
     border-bottom: 4px double #000;
@@ -23,6 +24,7 @@
     border: none;
     background: none;
     margin: 5px;
+    transition: .5s;
 }
 .menus button:hover{
     background-color: beige;
@@ -150,6 +152,15 @@
     height: 100%;
     font-size: 24px;
     list-style: none;
+}
+
+.pagination{
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+    padding: 30px 0;
+    margin: 0;
+    cursor: pointer;
 }
 
 @media (max-width: 768px) {
