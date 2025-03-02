@@ -4,7 +4,7 @@ const menus = document.querySelectorAll(".menus button");
 menus.forEach(menu => menu.addEventListener("click", (event) => getNewsByCategory(event)));
 const sideNav = document.querySelectorAll(".side-nav button");
 sideNav.forEach(menu => menu.addEventListener("click", (event) => getNewsByCategory(event)));
-let url = new URL(`https://noona-times-be-5ca9402f90d9.herokuapp.com/top-headlines?country=us&apiKey=${API_KEY}`);
+let url = new URL(`https://noona-times-be-5ca9402f90d9.herokuapp.com/top-headlines?country=kr&apiKey=${API_KEY}`);
 let totalResults = 0;
 let page = 1;
 const pageSize = 10;
@@ -36,21 +36,23 @@ const getNews = async () => {
 
 // 최신 뉴스 가져오기
 const getLatestNews = async () => {
-  url = new URL(`https://noona-times-be-5ca9402f90d9.herokuapp.com/top-headlines?country=us&apiKey=${API_KEY}`);
+  url = new URL(`https://noona-times-be-5ca9402f90d9.herokuapp.com/top-headlines?country=kr&apiKey=${API_KEY}`);
   await getNews();
 };
 
 // 카테고리별 뉴스 가져오기
 const getNewsByCategory = async (event) => {
   const category = event.target.textContent.toLowerCase();
-  url = new URL(`https://noona-times-be-5ca9402f90d9.herokuapp.com/top-headlines?country=us&category=${category}&apiKey=${API_KEY}`);
+  page = 1;
+  totalResults = 0;
+  url = new URL(`https://noona-times-be-5ca9402f90d9.herokuapp.com/top-headlines?country=kr&category=${category}&apiKey=${API_KEY}`);
   await getNews();
 }
 
 // 키워드 검색 뉴스 가져오기
 const getNewsByKeyword = async () => {
   const keyword = document.getElementById("search-input").value;
-  url = new URL(`https://noona-times-be-5ca9402f90d9.herokuapp.com/top-headlines?country=us&q=${keyword}&apiKey=${API_KEY}`);
+  url = new URL(`https://noona-times-be-5ca9402f90d9.herokuapp.com/top-headlines?country=kr&q=${keyword}&apiKey=${API_KEY}`);
   await getNews();
 };
 
@@ -122,64 +124,50 @@ const paginationRender = () => {
   // totalPages
   const totalPages = Math.ceil(totalResults / pageSize);
   // groupSize
-
   // pageGroup
   const pageGroup = Math.ceil(page / groupSize);
-  // lastPage
+
   let lastPage = pageGroup * groupSize;
-  // 마지막 페이지 그룹이 그룹 사이즈보다 작다? lastPage = totalPages
-  if(lastPage > totalPages){
-    lastPage = totalPages;
+  if (lastPage > totalPages) lastPage = totalPages;
+
+  // 첫 페이지가 무조건 1부터 시작하도록 수정!
+  const firstPage = (pageGroup - 1) * groupSize + 1;
+
+  let paginationHTML = ``;
+
+  if (page > 1) {
+    paginationHTML += `<li class="page-item" onclick="moveToPage(1)">
+                            <a class="page-link">&laquo;</a>
+                       </li>
+                       <li class="page-item" onclick="moveToPage(${page - 1})">
+                            <a class="page-link">&lsaquo;</a>
+                       </li>`;
   }
 
-  // firstPage
-  const firstPage = lastPage - (groupSize - 1) <= 0 ? 1: lastPage - (groupSize - 1);
-
-  let last = pageGroup * 5;
-  if (last > totalPages) {
-    // 마지막 그룹이 5개 이하이면
-    last = totalPages;
-  }
-  let first = last - 4 <= 0 ? 1 : last - 4; // 첫그룹이 5이하이면
-
-  let paginationHTML = `<li class="page-item ${page <= 1 ? "d-none" : ""}" onclick="moveToPage(${firstPage})">
-                                          <a class="page-link" href="#" aria-label="Previous">
-                                            <span aria-hidden="true">&laquo;</span>
-                                          </a>
-                                        </li>`;
-
-  paginationHTML += `<li class="page-item ${page === firstPage ? "d-none" : ""}" onclick="moveToPage(${page - 1})">
-                                      <a class="page-link" href="#" aria-label="Previous">
-                                        <span aria-hidden="true">&#60;</span>
-                                      </a>
-                                    </li>`;
-
-  for(let i = firstPage; i <= lastPage; i++){
-    paginationHTML += `<li class="page-item ${i === page ? "active" : ""}" onclick="moveToPage(${i})"><a class="page-link">${i}</a></li>`;
+  for (let i = firstPage; i <= lastPage; i++) {
+    paginationHTML += `<li class="page-item ${i === page ? "active" : ""}"
+                            onclick="moveToPage(${i})">
+                            <a class="page-link">${i}</a>
+                       </li>`;
   }
 
-  paginationHTML += `<li class="page-item ${page === lastPage ? "d-none" : ""}" onclick="moveToPage(${page + 1})">
-                                    <a class="page-link" href="#" aria-label="Next">
-                                      <span aria-hidden="true">&#62;</span>
-                                    </a>
-                                  </li>`;
+  if (page < totalPages) {
+    paginationHTML += `<li class="page-item" onclick="moveToPage(${page + 1})">
+                            <a class="page-link">&rsaquo;</a>
+                       </li>
+                       <li class="page-item" onclick="moveToPage(${totalPages})">
+                            <a class="page-link">&raquo;</a>
+                       </li>`;
+  }
 
-  paginationHTML += `<li class="page-item ${page === lastPage ? "d-none" : ""}" onclick="moveToPage(${lastPage})">
-                                      <a class="page-link" href="#" aria-label="Next">
-                                        <span aria-hidden="true">&raquo;</span>
-                                      </a>
-                                    </li>`;
-
-                                    
   document.querySelector(".pagination").innerHTML = paginationHTML;
-
-
 };
 
 const moveToPage = (pageNum) => {
   console.log("moveToPage", pageNum);
   page = pageNum;
   getNews();
+
 };
 
 getLatestNews();
